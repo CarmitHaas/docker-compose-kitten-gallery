@@ -76,9 +76,13 @@ When you're done, the app should:
 Before you start writing, consider these questions:
 
 - What services does this application need?
+- How will the containers talk to each other? Do they need to be on the same network?
 - How does the web app know where to find Redis? (Hint: check `app.py` for environment variables)
+- Should the Redis port be exposed to the host, or only accessible within the container network?
 - What happens to vote data when you run `docker compose down`? How do you prevent data loss?
 - Does the Redis service need a Dockerfile, or can you use an existing image?
+- **Think about volumes**: There are different kinds of data in this app. The kitten images and templates are *your code* - they live on your machine and you want to edit them. But the vote counts are *application data* - they belong to Redis. Should these be stored the same way? (Hint: Docker has both **bind mounts** and **named volumes** - they serve different purposes.)
+- **Looking ahead**: In a real production app, would you want users to access the database directly? Or would you put a reverse proxy (like Nginx) in front, and separate your network into "frontend" and "backend" zones? We'll build towards that architecture in later exercises - but even here, think about which ports really need to be public.
 
 ## Hints
 
@@ -99,16 +103,22 @@ Look at line 22 in `app.py`:
 redis_host = os.environ.get('REDIS_HOST', 'localhost')
 ```
 
-In Docker Compose, services can reach each other by their **service name**. So if your Redis service is called `redis`, you need to set the environment variable `REDIS_HOST=redis` on the web service.
+For containers to communicate, they need to be on the **same network**. Define a custom network in your compose file and attach both services to it. Within that network, services can reach each other by their **service name** - so if your Redis service is called `redis`, set the environment variable `REDIS_HOST=redis` on the web service.
+
+Notice: Redis does NOT need its port exposed to the host. Only the web app needs a published port.
 
 </details>
 
 <details>
-<summary>Hint 3: Data persistence</summary>
+<summary>Hint 3: Volumes - config vs persistence</summary>
 
-Redis stores data in the `/data` directory inside its container. To persist this data, create a **named volume** and mount it to `/data` on the Redis service.
+This app needs two kinds of volumes, serving different purposes:
 
-Without a volume, all votes are lost when you run `docker compose down`.
+**Bind mounts** (for development): Mount your local `./static` and `./templates` directories into the web container. This lets you edit templates and see changes without rebuilding the image - great for development.
+
+**Named volumes** (for persistence): Redis stores vote data in `/data`. Create a named volume (e.g., `redis_data`) mounted to `/data` on the Redis service. Named volumes are managed by Docker and survive `docker compose down`.
+
+Without the named volume, all votes are lost when containers stop. Without the bind mounts, you'd have to rebuild the image every time you change a template.
 
 </details>
 
@@ -117,8 +127,9 @@ Without a volume, all votes are lost when you run `docker compose down`.
 
 Your docker-compose.yml should have:
 - `services:` with `web` and `redis`
-- `web` should use `build: .`, map a port, set `REDIS_HOST`, and `depends_on: redis`
-- `redis` should use `image: redis:alpine` and mount a named volume
+- `web` should use `build: .`, map a port, set `REDIS_HOST`, `depends_on: redis`, and bind-mount `./static` and `./templates` for development
+- `redis` should use `image: redis:alpine` and mount a named volume to `/data`
+- A `networks:` section defining a shared network, with both services attached to it
 - A top-level `volumes:` section declaring the named volume
 
 </details>
@@ -175,4 +186,4 @@ git checkout solution
 
 ---
 
-*Created by [Carmit Haas](https://github.com/CarmitHaas) - hands-on Docker & DevOps training*
+*[Carmit Haas](https://github.com/CarmitHaas) | DevOps Engineer & Lead Instructor*
