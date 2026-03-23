@@ -13,7 +13,8 @@ KITTENS = [
     {"id": 2, "name": "Snowball", "image": "kitten2.jpg", "description": "A fluffy white kitten"},
     {"id": 3, "name": "Midnight", "image": "kitten3.jpg", "description": "A sleek black kitten"},
     {"id": 4, "name": "Ginger", "image": "kitten4.jpg", "description": "An orange striped kitten"},
-    {"id": 5, "name": "Patches", "image": "kitten5.jpg", "description": "A calico kitten with patches"}
+    {"id": 5, "name": "Patches", "image": "kitten5.jpg", "description": "A calico kitten with patches"},
+    {"id": 6, "name": "Blue", "image": "kitten6.jpg", "description": "A curious kitten with blue eyes"}
 ]
 
 # Initialize cache connection - will be None if Redis is unavailable
