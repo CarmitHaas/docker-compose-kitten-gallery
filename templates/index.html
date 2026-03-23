@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitten Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #f0fdf4 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0d9488, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+        }
+
+        header p {
+            color: #64748b;
+            font-size: 1.05rem;
+        }
+
+        /* Status Banner */
+        .status-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .status-banner.connected {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #065f46;
+        }
+
+        .status-banner.disconnected {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #991b1b;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .connected .status-dot {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .disconnected .status-dot {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0d9488;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.15rem;
+        }
+
+        /* Kitten Grid */
+        .kitten-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kitten-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+        }
+
+        .kitten-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .kitten-card.winner {
+            border: 2px solid #f59e0b;
+        }
+
+        .crown-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+            z-index: 2;
+        }
+
+        .kitten-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .kitten-info {
+            padding: 1.25rem;
+        }
+
+        .kitten-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+        }
+
+        .kitten-desc {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .vote-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .vote-count {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0d9488;
+            min-width: 60px;
+        }
+
+        .vote-button {
+            flex: 1;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .vote-button:hover {
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+
+        .vote-button:active {
+            transform: scale(0.97);
+        }
+
+        .vote-button:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Footer actions */
+        .footer-actions {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .reset-button {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+            padding: 0.55rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .reset-button:hover {
+            color: #ef4444;
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+
+        .reset-button:disabled {
+            color: #cbd5e1;
+            border-color: #f1f5f9;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        footer code {
+            background: rgba(0,0,0,0.04);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            header h1 { font-size: 1.75rem; }
+            .stats-row { flex-direction: column; align-items: center; gap: 0.75rem; }
+            .kitten-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kitten Gallery</h1>
+            <p>Vote for the cutest kitten!</p>
+        </header>
+
+        {% if redis_available %}
+        <div class="status-banner connected">
+            <span class="status-dot"></span>
+            <span>Redis Connected &mdash; Voting enabled!</span>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">{{ visit_count }}</div>
+                <div class="stat-label">Page Visits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ kittens | map(attribute='votes') | sum }}</div>
+                <div class="stat-label">Total Votes</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="status-banner disconnected">
+            <span class="status-dot"></span>
+            <span>Redis not connected &mdash; Voting disabled</span>
+        </div>
+        {% endif %}
+
+        <div class="kitten-grid">
+            {% for kitten in kittens %}
+            <div class="kitten-card {% if loop.first and redis_available and kitten.votes > 0 %}winner{% endif %}">
+                {% if loop.first and redis_available and kitten.votes > 0 %}
+                <div class="crown-badge">&#128081;</div>
+                {% endif %}
+                <img class="kitten-image" src="{{ url_for('static', filename=kitten.image) }}" alt="{{ kitten.name }}">
+                <div class="kitten-info">
+                    <h2 class="kitten-name">{{ kitten.name }}</h2>
+                    <p class="kitten-desc">{{ kitten.description }}</p>
+                    <div class="vote-row">
+                        {% if redis_available %}
+                        <span class="vote-count">{{ kitten.votes }} votes</span>
+                        <form action="{{ url_for('vote', kitten_id=kitten.id) }}" method="post" style="flex:1; display:flex;">
+                            <button class="vote-button" type="submit">Vote</button>
+                        </form>
+                        {% else %}
+                        <span class="vote-count" style="color: #cbd5e1;">No votes</span>
+                        <button class="vote-button" disabled>Connect Redis to vote</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="footer-actions">
+            <form action="{{ url_for('reset') }}" method="post">
+                <button class="reset-button" type="submit" {% if not redis_available %}disabled{% endif %}>
+                    Reset All Votes
+                </button>
+            </form>
+        </div>
+
+        <footer>
+            <p>Container: <code>{{ hostname }}</code> &middot; Built for Docker Compose learning</p>
+        </footer>
+    </div>
+</body>
+</html>
