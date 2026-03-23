@@ -1,6 +1,6 @@
-# Kitten Gallery - Docker vs Docker Compose
+# Kitten Gallery - Learn Docker Compose
 
-> Build a kitten voting gallery and discover why Docker Compose exists - by seeing what breaks without it.
+> **Hands-on exercise**: Build a kitten voting gallery and discover why Docker Compose exists - by seeing what breaks without it.
 
 ![Kitten Gallery with Redis](docs/with-redis.png)
 
@@ -26,6 +26,13 @@ This is a Flask web application where users vote for their favorite kittens. It 
 - **A Redis database** that stores vote counts and visit statistics
 
 The interesting part? The app is designed to work *with or without* Redis. When Redis isn't available, voting is disabled and the app shows a "disconnected" state. This makes it the perfect tool for understanding **why Docker Compose matters**.
+
+## Getting Started
+
+```bash
+git clone https://github.com/CarmitHaas/docker-compose-kitten-gallery.git
+cd docker-compose-kitten-gallery
+```
 
 ## Part 1: Run It With Just Docker
 
